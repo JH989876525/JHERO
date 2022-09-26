@@ -42,6 +42,8 @@
     - [mpeg multi](#mpeg-multi-1)
     - [mp4 decode](#mp4-decode)
     - [rtsp rx](#rtsp-rx)
+  - [Multiple UVC camera](#multiple-uvc-camera)
+    - [error log](#error-log)
 - [v4l2](#v4l2)
 - [usb bandwidth ctrl](#usb-bandwidth-ctrl)
 - [nvme fdisk](#nvme-fdisk)
@@ -75,7 +77,7 @@
 
 # awk
 ```
-awk {'print $2'}
+awk '{print $4}'
 awk -F: {'print $2'}
 awk -F, {'print $2'}
 ```
@@ -311,7 +313,149 @@ gst-launch-1.0 rtspsrc location=rtsp://192.168.3.104:8554/test latency=100 \
 ! fpsdisplaysink video-sink="autovideosink"
 ```
 
+## Multiple UVC camera
+```bash
+v4l2-ctl -D -d /dev/video0 --list-formats-ext
+```
 
+```bash
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! video/x-raw, width=1920, height=1080,framerate=5/1 \
+! videoconvert ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! video/x-raw, width=1280, height=720,framerate=10/1 \
+! videoconvert ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! video/x-raw, width=640, height=480,framerate=30/1 \
+! videoconvert ! fakesink
+```
+
+```
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! image/jpeg,width=1920,height=1080,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! image/jpeg,width=1280,height=720,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+```
+
+```
+gst-launch-1.0 v4l2src device=/dev/video0 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video2 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video4 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+
+gst-launch-1.0 v4l2src device=/dev/video6 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+```
+
+///////////////////////////////////////////////////////////////
+```
+gst-launch-1.0 \
+v4l2src device=/dev/video0 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink \
+v4l2src device=/dev/video2 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink \
+v4l2src device=/dev/video4 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink \
+v4l2src device=/dev/video6 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+```
+```
+gst-launch-1.0 \
+v4l2src device=/dev/video8 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink \
+v4l2src device=/dev/video10 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink \
+v4l2src device=/dev/video12 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink \
+v4l2src device=/dev/video14 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! fakesink
+```
+
+```
+gst-launch-1.0 \
+v4l2src device=/dev/video0 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! autovideosink \
+v4l2src device=/dev/video2 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! autovideosink \
+v4l2src device=/dev/video4 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! autovideosink \
+v4l2src device=/dev/video6 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! autovideosink
+```
+
+```
+./rtsp_server_app \
+"videomixer name=mix \
+sink_0::xpos=0 sink_0::ypos=0 \
+sink_1::xpos=640 sink_1::ypos=0 \
+sink_2::xpos=0 sink_2::ypos=480 \
+sink_3::xpos=640 sink_2::ypos=480 \
+! omxh264enc target-bitrate=2000 control-rate=2 \
+! h264parse ! rtph264pay name=pay0 pt=96 \
+v4l2src device=/dev/video8 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! mix.sink_0 \
+v4l2src device=/dev/video10 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! mix.sink_1 \
+v4l2src device=/dev/video12 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! mix.sink_2 \
+v4l2src device=/dev/video14 \
+! image/jpeg,width=640,height=480,framerate=30/1 \
+! jpegparse ! jpegdec ! mix.sink_3"
+```
+
+### error log
+```
+[  554.953407] xhci-hcd xhci-hcd.0.auto: Ring expansion failed
+[  554.958991] uvcvideo: Failed to submit URB 42 (-12).
+[  554.959777] xhci-hcd xhci-hcd.0.auto: Ring expansion failed
+[  554.969505] uvcvideo: Failed to resubmit video URB (-12).
+ERROR: from element /GstPipeline:pipeline0/GstV4l2Src:v4l2src0: Failed to allocate required memory.
+Additional debug info:
+```
+```
+[  531.727773] uvcvideo: Failed to resubmit video URB (-19).
+[  531.733829] uvcvideo: Failed to resubmit video URB (-19).
+[  531.743272] uvcvideo: Failed to resubmit video URB (-19).
+[  531.749325] uvcvideo: Failed to resubmit video URB (-19).
+[  531.758761] uvcvideo: Failed to resubmit video URB (-19).
+[  531.764789] uvcvideo: Failed to resubmit video URB (-19).
+[  531.774266] uvcvideo: Failed to resubmit video URB (-19).
+[  531.780299] uvcvideo: Failed to resubmit video URB (-19).
+[  531.789760] uvcvideo: Failed to resubmit video URB (-19).
+[  531.795791] uvcvideo: Failed to resubmit video URB (-19).
+```
 
 
 # v4l2
@@ -354,64 +498,67 @@ sudo i2cdump -f -y 0 0x27
 ```
 # vvas pipeline  
 ## gstremaer launch
-        gst-launch-1.0 \
-        gst-launch-1.0 -vvv \
+```bash
+gst-launch-1.0 \
+gst-launch-1.0 -vvv \
+```
 ## input source
 ### 模板
-
-        v4l2src device=${UVC_CAMERA_DEV} ! video/x-raw, width=${WIDTH}, height=${HEIGHT} ! videoconvert \
-        filesrc location="${H264_VIDEO_FILE}" ! h264parse ! omxh264dec internal-entropy-buffers=3 \
-        multifilesrc location="${H264_VIDEO_FILE}" loop=${BOOL_LOOP} ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+```bash
+v4l2src device=${UVC_CAMERA_DEV} ! video/x-raw, width=${WIDTH}, height=${HEIGHT} ! videoconvert \
+filesrc location="${H264_VIDEO_FILE}" ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+multifilesrc location="${H264_VIDEO_FILE}" loop=${BOOL_LOOP} ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+```
 ### example
-
-        v4l2src device=/dev/video0 ! video/x-raw, width=1024, height=576 ! videoconvert \
-        v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert \
-        filesrc location="/home/petalinux/walking_humans.nv12.1920x1080.h264" ! h264parse ! omxh264dec internal-entropy-buffers=3 \
-        filesrc location="/home/petalinux/traffic_1920x1080.h264" ! h264parse ! omxh264dec internal-entropy-buffers=3 \
-        multifilesrc location="/home/petalinux/walking_humans.nv12.1920x1080.h264" loop=true ! h264parse ! omxh264dec internal-entropy-buffers=3 \
-        multifilesrc location="/home/petalinux/traffic_1920x1080.h264" loop=true ! h264parse ! omxh264dec internal-entropy-buffers=3 \
-
+```bash
+v4l2src device=/dev/video0 ! video/x-raw, width=1024, height=576 ! videoconvert \
+v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert \
+filesrc location="/home/petalinux/walking_humans.nv12.1920x1080.h264" ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+filesrc location="/home/petalinux/traffic_1920x1080.h264" ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+multifilesrc location="/home/petalinux/walking_humans.nv12.1920x1080.h264" loop=true ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+multifilesrc location="/home/petalinux/traffic_1920x1080.h264" loop=true ! h264parse ! omxh264dec internal-entropy-buffers=3 \
+```
 ## inference & bbox process
 ### 模板
-
-        ! tee name=t${NUM} \
-        t${NUM}.src_0 \
-        ! queue ! ivas_xmultisrc kconfig="${PATH}/ped_pp.json"  \
-        ! queue ! ivas_xfilter kernels-config="${PATH}/kernel_dpu.json"  \
-        ! queue ! scalem${NUM}.sink_master ivas_xmetaaffixer name=scalem${NUM} scalem${NUM}.src_master \
-        ! fakesink \
-        t${NUM}.src_1 \
-        ! queue ! scalem${NUM}.sink_slave_0 scalem${NUM}.src_slave_0 \
-        ! queue ! ivas_xfilter kernels-config="${PATH}/kernel_bbox.json"  \
-
+```bash
+! tee name=t${NUM} \
+t${NUM}.src_0 \
+! queue ! ivas_xmultisrc kconfig="${PATH}/ped_pp.json"  \
+! queue ! ivas_xfilter kernels-config="${PATH}/kernel_dpu.json"  \
+! queue ! scalem${NUM}.sink_master ivas_xmetaaffixer name=scalem${NUM} scalem${NUM}.src_master \
+! fakesink \
+t${NUM}.src_1 \
+! queue ! scalem${NUM}.sink_slave_0 scalem${NUM}.src_slave_0 \
+! queue ! ivas_xfilter kernels-config="${PATH}/kernel_bbox.json"  \
+```
 ### example
-
-        ! tee name=t0 \
-        t0.src_0 \
-        ! queue ! ivas_xmultisrc kconfig="/home/petalinux/cuz/densebox_640_360/ped_pp.json"  \
-        ! queue ! ivas_xfilter kernels-config="/home/petalinux/cuz/densebox_640_360/kernel_dpu.json"  \
-        ! queue ! scalem0.sink_master ivas_xmetaaffixer name=scalem0 scalem0.src_master \
-        ! fakesink \
-        t0.src_1 \
-        ! queue ! scalem0.sink_slave_0 scalem0.src_slave_0 \
-        ! queue ! ivas_xfilter kernels-config="/home/petalinux/cuz/densebox_640_360/kernel_bbox.json"  \
-
+```bash
+! tee name=t0 \
+t0.src_0 \
+! queue ! ivas_xmultisrc kconfig="/home/petalinux/cuz/densebox_640_360/ped_pp.json"  \
+! queue ! ivas_xfilter kernels-config="/home/petalinux/cuz/densebox_640_360/kernel_dpu.json"  \
+! queue ! scalem0.sink_master ivas_xmetaaffixer name=scalem0 scalem0.src_master \
+! fakesink \
+t0.src_1 \
+! queue ! scalem0.sink_slave_0 scalem0.src_slave_0 \
+! queue ! ivas_xfilter kernels-config="/home/petalinux/cuz/densebox_640_360/kernel_bbox.json"  \
+```
 ## output sink
 ### 模板
+```bash
+! kmssink bus-id=${AXI_ADDRESS}.v_mix plane-id=${ID} render-rectangle="<${X_AXI},${Y_AXI},${WIDTH},${HEIGHT}>" show-preroll-frame=false sync=false can-scale=false \
 
-        ! kmssink bus-id=${AXI_ADDRESS}.v_mix plane-id=${ID} render-rectangle="<${X_AXI},${Y_AXI},${WIDTH},${HEIGHT}>" show-preroll-frame=false sync=false can-scale=false \
-
-        ! kmssink bus-id=fd4a0000.zynqmp-display fullscreen-overlay=1 sync=false
-
+! kmssink bus-id=fd4a0000.zynqmp-display fullscreen-overlay=1 sync=false
+```
 ### example
-
-        ! kmssink bus-id=80000000.v_mix plane-id=37 render-rectangle="<1920,1080,1200,1200>" show-preroll-frame=false sync=false can-scale=false \
-
+```bash
+! kmssink bus-id=80000000.v_mix plane-id=37 render-rectangle="<1920,1080,1200,1200>" show-preroll-frame=false sync=false can-scale=false \
+```
 
 # k26 suspend
 ## 設定喚醒機制
 ### UART
-```
+```bash
 echo enabled > /sys/devices/platform/amba/ff000000.serial/tty/ttyPS1/power/wakeup
 cat /sys/devices/platform/amba/ff000000.serial/tty/ttyPS1/power/wakeup
 
@@ -419,11 +566,11 @@ echo enabled > /sys/devices/platform/amba/ff010000.serial/tty/ttyPS0/power/wakeu
 cat /sys/devices/platform/amba/ff010000.serial/tty/ttyPS0/power/wakeup
 ```
 ## system suspend
-```
+```bash
 echo mem > /sys/power/state
 ```
 # grep if
-```
+```bash
 cat 1.log | grep -q "string"
 
 if [ "$?" -eq "0" ] ; then
@@ -433,26 +580,26 @@ else
 fi
 ```
 # install rpm
-```
+```bash
 sudo rpm -ivh ./*.rpm
 ```
 
 # install rpm on ubuntu
-```
+```bash
 sudo alien --to-deb --target=arm64 ./*.rpm 
 
 sudo dpkg -i --force-all ./*.deb
 ```
-```
+```bash
 /usr/lib/aarch64-linux-gnu
 ```
 # set boot run script
-```
+```bash
 cd /etc/init.d
 touch innodisk.sh
 vi innodisk.sh
 ```
-```
+```bash
 #!/bin/bash
 case "$1" in
 'start')
@@ -465,34 +612,34 @@ case "$1" in
 esac
 exit
 ```
-```
+```bash
 sudo update-rc.d innodisk.sh defaults 99
 sudo update-rc.d -f innodisk.sh remove
 ```
 
 # SD flash
-```
+```bash
 echo -e "d\n\nd\n\nd\n\nn\n\n\n\n+1G\ny\na\nn\n\n\n\n\ny\nw\n" | sudo fdisk /dev/sdx
 ```
-```
+```bash
 sudo mkfs.vfat -F 32 -n boot /dev/sd
 sudo mkfs.ext4 -L root /dev/sd
 ```
 
 # minicom
-```
+```bash
 sudo minicom -c on -D /dev/ttyUSB1
 ```
 
 # aibox
-```
+```bash
 /usr/local/opencv/include/opencv2/
 /usr/local/opencv/lib/
 
 /usr/include/
 /usr/lib/
 ```
-```
+```bash
 export LD_LIBRARY_PATH=/home/ubuntu/aibox/ArenaSDK_Linux_ARM64/lib/:/home/ubuntu/aibox/ArenaSDK_Linux_ARM64/GenICam/library/lib/Linux64_ARM/:/home/ubuntu/aibox/ArenaSDK_Linux_ARM64/ffmpeg/:/usr/local/opencv/lib/
 
 /home/ubuntu/aibox/aibox_tmp -v /home/ubuntu/aibox/test1_remux.webm /home/ubuntu/aibox/model256.xmodel
@@ -501,6 +648,7 @@ export LD_LIBRARY_PATH=/home/ubuntu/aibox/ArenaSDK_Linux_ARM64/lib/:/home/ubuntu
 ```
 
 # PCIE reset
+```bash
 echo 1 > /sys/bus/pci/rescan
-
+```
 
