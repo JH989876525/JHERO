@@ -72,8 +72,12 @@
 - [set boot run script](#set-boot-run-script)
 - [SD flash](#sd-flash)
 - [minicom](#minicom)
+  - [resize](#resize)
 - [aibox](#aibox)
 - [PCIE reset](#pcie-reset)
+- [ffmpeg](#ffmpeg)
+  - [mp4 to 264](#mp4-to-264)
+  - [resize](#resize-1)
 
 # awk
 ```
@@ -314,6 +318,11 @@ gst-launch-1.0 rtspsrc location=rtsp://192.168.3.104:8554/test latency=100 \
 ```
 
 ## Multiple UVC camera
+show uvcvideo kernel message
+```bash
+echo 0xffff > /sys/module/uvcvideo/parameters/trace
+```
+show all formats of camera
 ```bash
 v4l2-ctl -D -d /dev/video0 --list-formats-ext
 ```
@@ -630,6 +639,11 @@ sudo mkfs.ext4 -L root /dev/sd
 ```bash
 sudo minicom -c on -D /dev/ttyUSB1
 ```
+## resize
+```bash
+shopt -s checkwinsize
+resize
+```
 
 # aibox
 ```bash
@@ -652,3 +666,13 @@ export LD_LIBRARY_PATH=/home/ubuntu/aibox/ArenaSDK_Linux_ARM64/lib/:/home/ubuntu
 echo 1 > /sys/bus/pci/rescan
 ```
 
+# ffmpeg
+## mp4 to 264
+```bash
+ffmpeg -i $INPUTVIDEO -an -vcodec libx264 -crf 23 $OUTPUTVIDEO
+```
+## resize
+```bash
+ffmpeg -i $INPUTVIDEO -vf scale=${W}:${H} $OUTPUTVIDEO
+ffmpeg -i $INPUTVIDEO -vf scale=${W}:-1     ` $OUTPUTVIDEO
+```
