@@ -28,10 +28,12 @@
 - [samba](#samba)
 - [plnx rootfs types](#plnx-rootfs-types)
 - [reset USB](#reset-usb)
-- [dd](#dd)
 - [xmutil](#xmutil)
-- [disk speed](#disk-speed)
+- [dd](#dd)
+  - [disk speed](#disk-speed)
 - [modetest](#modetest)
+  - [2020.2.2](#202022)
+  - [2022.1](#20221)
 - [gstreamer](#gstreamer)
   - [基礎](#基礎)
   - [位移](#位移)
@@ -78,6 +80,7 @@
 - [ffmpeg](#ffmpeg)
   - [mp4 to 264](#mp4-to-264)
   - [resize](#resize-1)
+- [kill](#kill-1)
 
 # awk
 ```
@@ -199,18 +202,17 @@ cpio cpio.gz tar.gz ext4 cpio.gz.u-boot jffs2
 # reset USB
 sudo sh -c 'AUTHFILE="/sys/bus/usb/devices/usb2/authorized" ; echo 0 > "$AUTHFILE" ; sleep 1 ; echo 1 > "$AUTHFILE"'
 
-# dd
-
 # xmutil
-```
+```bash
 xmutil unloadapp
 xmutil listapps
 xmutil loadapp
 
 xmutil unloadapp && sleep 1 && xmutil loadapp 
 ```
-# disk speed
-```
+# dd
+## disk speed
+```bash
 dd if=/dev/zero of=/mnt/SDCard.dd conv=fdatasync bs=5M count=5 2>&1
 time dd if=/dev/zero of=/run/media/nvme0n1p1/4K1M bs=4k count=1000000 oflag=direct status=progress
 
@@ -226,7 +228,8 @@ fio --filename=/dev/nvme0n1 --direct=1 --rw=randrw --iodepth=128 -thread -numjob
 fio --filename=/dev/nvme0n1 --direct=1 --rw=randrw --iodepth=128 -thread -numjobs=8 -rwmixread=50 -ioengine=psync -bs=4k -size=1G -group_reporting -name=test -runtime=10
 ```
 # modetest
-```
+## 2020.2.2
+```bash
 modetest -M xlnx
 
 modetest -D fd4a0000.zynqmp-display
@@ -251,9 +254,13 @@ modetest -M xlnx -s 43@41:1920x1080@AR24 -P 39@41:1920x1080@NV12 -w 40:alpha:0
 
 modetest -M xlnx -D 80000000.v_mix -s 52@40:1920x1080-74.97@NV16
 ```
+## 2022.1
+```bash
+modetest -M xlnx -D a0000000.v_mix -s 55@43:1920x1080@NV16
+```
 # gstreamer
 ## 基礎
-```
+```bash
 gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert ! kmssink bus-id=fd4a0000.zynqmp-display fullscreen-overlay=1 sync=false
 
 gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=34 fullscreen-overlay=1 sync=false
@@ -262,12 +269,12 @@ gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1
 ```
 ## 位移 
 ender-rectangle="<x,y,w,h>"
-```
+```bash
 gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle="<1280,680,1280,800>" sync=false
 ```
 ## 縮放
 ! videoscale ! "video/x-raw,width=960,height=540" !
-```
+```bash
 gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert ! videoscale ! "video/x-raw,width=960,height=540" ! kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle="<960,600,540,800>" sync=false
 
 gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1080 ! videoconvert ! videoscale ! "video/x-raw,width=960,height=540" ! kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle="<0,0,960,540>" sync=false
@@ -275,44 +282,44 @@ gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw, width=1920, height=1
 gst-launch-1.0 -v v4l2src device=/dev/video2 ! video/x-raw, width=1920, height=1080 ! videoconvert ! videoscale ! "video/x-raw,width=960,height=540" ! kmssink bus-id=80000000.v_mix plane-id=35 render-rectangle="<960,0,960,540>" sync=false
 ```
 ## mpeg
-```
+```bash
 gst-launch-1.0 v4l2src -vvv device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=34 fullscreen-overlay=1 sync=false
 ```
 ## mpeg multi
-```
+```bash
 gst-launch-1.0 v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=34 fullscreen-overlay=1 sync=false \
 v4l2src device=/dev/video2 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=35 fullscreen-overlay=1 sync=false
 ```
 ##　mpeg scale
-‵‵‵
+‵‵‵bash
 gst-launch-1.0 -vvv v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! videoscale ! kmssink bus-id=80000000.v_mix plane-id=34 fullscreen-overlay=1 sync=false
 ‵‵‵
 ## mpeg move
-```
+```bash
 gst-launch-1.0 -vvv v4l2src device=/dev/video6 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle=\"<0,0,320,240>\"" sync=false fullscreen-overlay=true
 ```
 ### mpeg multi
-```
+```bash
 gst-launch-1.0 -vvv v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle=\"<0,0,320,240>\"" sync=false fullscreen-overlay=true \
                                         v4l2src device=/dev/video2 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=35 render-rectangle=\"<320,0,320,240>\"" sync=false fullscreen-overlay=true \
                                         v4l2src device=/dev/video4 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=36 render-rectangle=\"<0,240,320,240>\"" sync=false fullscreen-overlay=true \
                                         v4l2src device=/dev/video6 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=37 render-rectangle=\"<320,240,320,240>\"" sync=false fullscreen-overlay=true \
 ```
-```
+```bash
 gst-launch-1.0 -vvv v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=15/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle=\"<0,0,320,240>\"" sync=false fullscreen-overlay=true \
                                         v4l2src device=/dev/video2 ! image/jpeg,width=640,height=480,framerate=5/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=35 render-rectangle=\"<320,0,320,240>\"" sync=false fullscreen-overlay=true \
                                         v4l2src device=/dev/video4 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=36 render-rectangle=\"<0,240,320,240>\"" sync=false fullscreen-overlay=true \
                                         v4l2src device=/dev/video6 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=37 render-rectangle=\"<320,240,320,240>\"" sync=false fullscreen-overlay=true \
 ```
 ### mp4 decode
-```
+```bash
 gst-launch-1.0 \
 filesrc location=/home/ubuntu/video/tmp_960.mp4 ! decodebin name=dec ! videoconvert \
 ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle=\"<0,0,960,540>\"" show-preroll-frame=false sync=false can-scale=false
 ```
 ### rtsp rx
-```
-gst-launch-1.0 rtspsrc location=rtsp://192.168.3.104:8554/test latency=100 \
+```bash
+gst-launch-1.0 rtspsrc location=rtsp://192.168.3.188:8554/test latency=100 \
 ! queue ! rtph264depay ! h264parse ! avdec_h264 \
 ! fpsdisplaysink video-sink="autovideosink"
 ```
@@ -641,8 +648,7 @@ sudo minicom -c on -D /dev/ttyUSB1
 ```
 ## resize
 ```bash
-shopt -s checkwinsize
-resize
+shopt -s checkwinsize && resize
 ```
 
 # aibox
@@ -674,5 +680,10 @@ ffmpeg -i $INPUTVIDEO -an -vcodec libx264 -crf 23 $OUTPUTVIDEO
 ## resize
 ```bash
 ffmpeg -i $INPUTVIDEO -vf scale=${W}:${H} $OUTPUTVIDEO
-ffmpeg -i $INPUTVIDEO -vf scale=${W}:-1     ` $OUTPUTVIDEO
+ffmpeg -i $INPUTVIDEO -vf scale=${W}:-1 $OUTPUTVIDEO
+```
+
+# kill
+```bash
+ps aux | pgrep gst | sudo xargs kill -9
 ```
