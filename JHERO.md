@@ -257,6 +257,10 @@ modetest -M xlnx -D 80000000.v_mix -s 52@40:1920x1080-74.97@NV16
 ## 2022.1
 ```bash
 modetest -M xlnx -D a0000000.v_mix -s 55@43:1920x1080@NV16
+
+modetest -M xlnx -D a0000000.v_mix -s 55@43:3840x2160@NV16
+
+modetest -M xlnx -D a0000000.v_mix -s 43@41:3840x2160@NV16
 ```
 # gstreamer
 ## 基礎
