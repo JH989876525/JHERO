@@ -25,13 +25,14 @@ alias dtbs="dtc -O dts -o system.dts system.dtb"
 alias dtsb="dtc -O dtb -o system.dtb system.dts"
 alias clean="~/cleanTrash.sh"
 alias lms="code /home/jhh/JHERO/"
-alias sdk0="echo \"/media/jhh/2022/EXMU-X261-BSP/petalinux/images/linux/sdk\""
+alias sdk0="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2020.2.2/petalinux/images/linux/sdk\""
 alias sdk1="echo \"/media/jhh/2022/2021.2_verify/petalinux/xilinx-k26-som-v2021.2-final/ourBSP/images/linux/sdk\""
 alias sdk2="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2022.1/petalinux/images/linux/sdk\""
 alias see="sudo screen /dev/ttyUSB1 115200"
+alias op='nautilus'
 
 # jhh add lib
-export LD_LIBRARY_PATH=/usr/local/opencv/lib:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/usr/local/opencv/lib:$LD_LIBRARY_PATH
 # jhh add end
 
 # don't put duplicate lines or lines starting with space in the history.
