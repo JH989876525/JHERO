@@ -67,7 +67,7 @@ v4l2src device=/dev/video6 \
 ! image/jpeg,width=640,height=480,framerate=30/1 \
 ! jpegparse ! jpegdec ! fakesink
 
-gst-launch-1.0
+gst-launch-1.0 \
 v4l2src device=/dev/video0 ! video/x-h264, width=640, height=480, framerate=30/1
 ! h264parse ! omxh264dec internal-entropy-buffers=3 \
 ! tee name=t0 \
