@@ -33,6 +33,10 @@
     - [example](#example-2)
 
 # v4l2
+show all formats of camera
+```bash
+v4l2-ctl -D --list-formats-ext -d /dev/video0 
+```
 ```bash
 v4l2-ctl -d /dev/video0 --all
 v4l2-ctl --get-fmt-video -d /dev/video0
@@ -107,10 +111,6 @@ gst-launch-1.0 v4l2src -vvv device=/dev/video0 ! image/jpeg,width=640,height=480
 gst-launch-1.0 v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=34 fullscreen-overlay=1 sync=false \
 v4l2src device=/dev/video2 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! kmssink bus-id=80000000.v_mix plane-id=35 fullscreen-overlay=1 sync=false
 ```
-##　mpeg scale
-‵‵‵bash
-gst-launch-1.0 -vvv v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! videoscale ! kmssink bus-id=80000000.v_mix plane-id=34 fullscreen-overlay=1 sync=false
-‵‵‵
 ## mpeg move
 ```bash
 gst-launch-1.0 -vvv v4l2src device=/dev/video6 ! image/jpeg,width=640,height=480,framerate=30/1 ! jpegparse ! jpegdec ! videoconvert ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle=\"<0,0,320,240>\"" sync=false fullscreen-overlay=true
@@ -145,10 +145,6 @@ gst-launch-1.0 rtspsrc location=rtsp://192.168.3.188:8554/test latency=100 \
 show uvcvideo kernel message
 ```bash
 echo 0xffff > /sys/module/uvcvideo/parameters/trace
-```
-show all formats of camera
-```bash
-v4l2-ctl -D -d /dev/video0 --list-formats-ext
 ```
 
 ```bash
