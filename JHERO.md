@@ -58,6 +58,8 @@
   - [mp4 to 264](#mp4-to-264)
   - [resize](#resize-1)
 - [kill](#kill-1)
+- [ethernet](#ethernet)
+  - [ethernet change speed](#ethernet-change-speed)
 
 # awk
 ```
@@ -377,4 +379,12 @@ ffmpeg -i $INPUTVIDEO -vf scale=${W}:-1 $OUTPUTVIDEO
 # kill
 ```bash
 ps aux | pgrep gst | sudo xargs kill -9
+```
+
+# ethernet
+## ethernet change speed
+```bash
+SPEED=${1:-1000}
+sudo ethtool -s eth0 autoneg on speed ${SPEED} duplex full
+cat /sys/class/net/eth0/speed
 ```
