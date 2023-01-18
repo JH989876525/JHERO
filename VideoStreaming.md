@@ -18,6 +18,7 @@
   - [mpeg move](#mpeg-move)
     - [mpeg multi](#mpeg-multi-1)
     - [mp4 decode](#mp4-decode)
+    - [mp4 decode with sound](#mp4-decode-with-sound)
     - [rtsp rx](#rtsp-rx)
   - [Multiple UVC camera](#multiple-uvc-camera)
 - [vvas pipeline](#vvas-pipeline)
@@ -133,6 +134,14 @@ gst-launch-1.0 -vvv v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480
 gst-launch-1.0 \
 filesrc location=/home/ubuntu/video/tmp_960.mp4 ! decodebin name=dec ! videoconvert \
 ! fpsdisplaysink video-sink="kmssink bus-id=80000000.v_mix plane-id=34 render-rectangle=\"<0,0,960,540>\"" show-preroll-frame=false sync=false can-scale=false
+```
+### mp4 decode with sound
+```bash
+gst-launch-1.0 \
+filesrc location="/home/petalinux/video/1k30p.mp4" ! qtdemux name=demux \
+demux.video_0 ! h264parse ! omxh264dec ! queue max-size-bytes=0 \
+! kmssink bus-id=fd4a0000.zynqmp-display fullscreen-overlay=1 \
+demux.audio_0 ! decodebin3 ! autoaudiosink
 ```
 ### rtsp rx
 ```bash
