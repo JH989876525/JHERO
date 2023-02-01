@@ -19,7 +19,6 @@ alias viv0="source /tools/Xilinx/Vivado/2020.2/settings64.sh"
 alias viv1="source /media/jhh/2022/Xilinx/Vivado/2021.2/settings64.sh"
 alias viv2="source /media/jhh/2022/Xilinx/Vivado/2022.1/settings64.sh"
 alias BOOTBIN="petalinux-package --boot --fpga system.bit --fsbl zynqmp_fsbl.elf --u-boot u-boot.elf --pmufw pmufw.elf --atf bl31.elf --force"
-alias mc="sudo minicom -c on"
 alias hls="source /home/jhh/Vitis_HLS_ENV.sh"
 alias dtbs="dtc -O dts -o system.dts system.dtb"
 alias dtsb="dtc -O dtb -o system.dtb system.dts"
@@ -30,6 +29,14 @@ alias sdk1="echo \"/media/jhh/2022/2021.2_verify/petalinux/xilinx-k26-som-v2021.
 alias sdk2="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2022.1/petalinux/images/linux/sdk\""
 alias see="sudo screen /dev/ttyUSB1 115200"
 alias op='nautilus'
+function mc(){
+    DEV=${1:-/dev/ttyUSB1}
+    sudo minicom -c on -D "${DEV}"
+}
+function ipn (){
+    IP=${1:-192.168.3.0}
+    sudo nmap -sP -n "${IP}/24"
+}
 
 # jhh add lib
 # export LD_LIBRARY_PATH=/usr/local/opencv/lib:$LD_LIBRARY_PATH
