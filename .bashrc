@@ -19,9 +19,8 @@ alias viv0="source /tools/Xilinx/Vivado/2020.2/settings64.sh"
 alias viv1="source /media/jhh/2022/Xilinx/Vivado/2021.2/settings64.sh"
 alias viv2="source /media/jhh/2022/Xilinx/Vivado/2022.1/settings64.sh"
 alias BOOTBIN="petalinux-package --boot --fpga system.bit --fsbl zynqmp_fsbl.elf --u-boot u-boot.elf --pmufw pmufw.elf --atf bl31.elf --force"
+alias BOOTBIN="petalinux-package --boot --fsbl zynqmp_fsbl.elf --u-boot u-boot.elf --pmufw pmufw.elf --atf bl31.elf --force"
 alias hls="source /home/jhh/Vitis_HLS_ENV.sh"
-alias dtbs="dtc -O dts -o system.dts system.dtb"
-alias dtsb="dtc -O dtb -o system.dtb system.dts"
 alias clean="~/cleanTrash.sh"
 alias lms="code /home/jhh/JHERO/"
 alias sdk0="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2020.2.2/petalinux/images/linux/sdk\""
@@ -36,6 +35,16 @@ function mc(){
 function ipn (){
     IP=${1:-192.168.3.0}
     sudo nmap -sP -n "${IP}/24"
+}
+function dtbs (){
+    INPUT=${1:-system.dtb}
+    AFFIX=$(echo "${INPUT}" | awk -F. {'print $1'})
+    dtc -O dts -o "${AFFIX}.dts" "${INPUT}"
+}
+function dtsb (){
+    INPUT=${1:-system.dts}
+    AFFIX=$(echo "${INPUT}" | awk -F. {'print $1'})
+    dtc -O dtb -o "${AFFIX}.dtb" "${INPUT}"
 }
 
 # jhh add lib
