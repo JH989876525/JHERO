@@ -32,6 +32,9 @@
   - [output sink](#output-sink)
     - [模板](#模板-2)
     - [example](#example-2)
+- [Test case](#test-case)
+  - [Display port](#display-port)
+  - [VCU](#vcu)
 
 # v4l2
 show all formats of camera
@@ -73,6 +76,8 @@ modetest -M xlnx -D 80000000.v_mix -s 52@40:1920x1080-74.97@NV16
 ```
 ## 2022.1
 ```bash
+modetest -M xlnx -D fd4a0000.display -s 43@41:1920x1080@AR24
+
 modetest -M xlnx -D a0000000.v_mix -s 55@43:1920x1080@NV16
 
 modetest -M xlnx -D a0000000.v_mix -s 55@43:3840x2160@NV16
@@ -330,3 +335,26 @@ t0.src_1 \
 ```bash
 ! kmssink bus-id=80000000.v_mix plane-id=37 render-rectangle="<1920,1080,1200,1200>" show-preroll-frame=false sync=false can-scale=false \
 ```
+
+# Test case
+## Display port
+```bash
+modetest -M xlnx -D fd4a0000.display -s 43@41:1920x1080@AR24
+
+gst-launch-1.0 -vvv \
+videotestsrc \
+! kmssink bus-id=fd4a0000.display fullscreen-overlay=1 sync=false
+```
+## VCU
+```bash
+modetest -M xlnx -D fd4a0000.display -s 43@41:1920x1080@AR24
+
+gst-launch-1.0 -vvv \
+filesrc location="./1k30p.h264" \
+! h264parse ! omxh264dec internal-entropy-buffers=3 \
+! kmssink bus-id=fd4a0000.display fullscreen-overlay=1 sync=false
+```
+
+gst-launch-1.0 -vvv \
+v4l2src device=/dev/video1 ! video/x-raw, width=1920, height=1080 ! videoconvert \
+! kmssink bus-id=fd4a0000.display fullscreen-overlay=1 sync=false
