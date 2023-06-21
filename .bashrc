@@ -26,11 +26,14 @@ alias lms="code /home/jhh/JHERO/"
 alias sdk0="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2020.2.2/petalinux/images/linux/sdk\""
 alias sdk1="echo \"/media/jhh/2022/2021.2_verify/petalinux/xilinx-k26-som-v2021.2-final/ourBSP/images/linux/sdk\""
 alias sdk2="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2022.1/petalinux/images/linux/sdk\""
-alias see="sudo screen /dev/ttyUSB1 115200"
 alias op='nautilus'
+function see(){
+    DEV=${1:-1}
+    sudo screen /dev/ttyUSB${DEV} 115200
+}
 function mc(){
-    DEV=${1:-/dev/ttyUSB1}
-    sudo minicom -c on -D "${DEV}"
+    DEV=${1:-1}
+    sudo minicom -c on -D /dev/ttyUSB${DEV}
 }
 function ipn (){
     IP=${1:-192.168.3.0}
