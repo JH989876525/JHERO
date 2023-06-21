@@ -10,6 +10,7 @@
 ```                                                 
 - [awk](#awk)
 - [sed](#sed)
+- [echo pipe](#echo-pipe)
 - [petalinux create](#petalinux-create)
 - [petalinux2020.2 local mirror setver setup](#petalinux20202-local-mirror-setver-setup)
   - [At JHH](#at-jhh)
@@ -62,20 +63,25 @@
   - [ethernet change speed](#ethernet-change-speed)
 
 # awk
-```
+```bash
 awk '{print $4}'
 awk -F: {'print $2'}
 awk -F, {'print $2'}
 ```
 # sed
-```
+```bash
 sed -i 's/MEANR/%s/g' %s
 
-| sed 's/MEANR/NWER/g'
+sed 's/MEANR/NWER/g'
+```
+# echo pipe
+```bash
+find /sys/devices/platform -name "control" | grep 'usb1\|usb2\|usb3\|usb4' | xargs cat
+
+echo on | tee $(find /sys/devices/platform -name "control" | grep 'usb1\|usb2\|usb3\|usb4')
 ```
 # petalinux create
-
-```
+```bash
 petalinux-create -t project --template zynqMP -n 
 
 petalinux-config --get-hw-description
@@ -106,7 +112,7 @@ SSTATE_DIR = "/media/jhh/ExtraSSD/LMirror2020.2.2/sstate-cache/sstate_aarch64_20
 http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads 
 ```
 # petalinux build app
-```
+```bash
 petalinux-create -t apps --name nameofurapp
 
 petalinux-build -c $APPNAME
@@ -120,7 +126,7 @@ fragment@0 {
 };
 ```
 # petalinux clean all
-```
+```bash
 petalinux-build -x mrproper
 petalinux-build -x distclean
 petalinux-build -x mrproper && petalinux-build -x distclean
@@ -137,19 +143,19 @@ petalinux-build -x mrproper && petalinux-build -x distclean
 
 # tar
 ## 打包
-```
+```bash
 cd <path-to-package-all>
 sudo tar -zcvf rootfs.tar.gz .
 sudo tar -zcvf <path-you-like>/rootfs.tar.gz .
 ```
 
 ## 解壓
-```
+```bash
 sudo tar -zxvf rootfs.tar.gz -C $ROOTPATH
 ```
 
 # color bash
-```
+```bash
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
@@ -159,7 +165,7 @@ echo -e "I am ${RED}dangerous${NC}."
 ```
 
 # kill
-```
+```bash
 jobs -l
 
 kill -9 ${PID}
@@ -167,7 +173,7 @@ kill -9 ${PID}
 ps -aux | pgrep ${TARGET} | xargs kill -9
 ```
 # device-tree
-```
+```bash
 dtc -O dts -o system.dts system.dtb
 
 dtc -O dtb -o system.dtb system.dts
@@ -216,21 +222,21 @@ fio --filename=/dev/nvme0n1 --direct=1 --rw=randrw --iodepth=128 -thread -numjob
 ```
 
 # usb bandwidth ctrl
-```
+```bash
 echo -1 > /sys/module/usbcore/parameters/autosuspend
 echo 0x400 > /sys/module/uvcvideo/parameters/trace
 echo 640 > /sys/module/uvcvideo/parameters/quirks
 ```
 
 # nvme fdisk
-```
+```bash
 umount /dev/nvme0n1p1
 fdisk /dev/nvme0n1
 mkfs.ext4 -L nvmessd /dev/nvme0n1p1
 mount /dev/nvme0n1p1 /mnt/nvmeSSD/
 ```
 # i2c tools
-```
+```bash
 sudo i2cdetect -r -y 0
 sudo i2cdump -f -y 0 0x74
 sudo i2cset -f -y 0 0x74 0x00 0x0f
@@ -331,7 +337,7 @@ mount /dev/mmcblk0p2 /media/sd-mmcblk0p2
 sleep 3
 cp /home/petalinux/emmc/* /media/sd-mmcblk0p1/
 sleep 3
-tar -zxvf /rootfs.tar.gz -C /media/sd-mmcblk0p2/
+tar -zxvf rootfs.tar.gz -C /media/sd-mmcblk0p2/
 sync
 ```
 
@@ -386,5 +392,6 @@ ps aux | pgrep gst | sudo xargs kill -9
 ```bash
 SPEED=${1:-1000}
 sudo ethtool -s eth0 autoneg on speed ${SPEED} duplex full
+sleep 3
 cat /sys/class/net/eth0/speed
 ```
