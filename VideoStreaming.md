@@ -35,6 +35,7 @@
 - [Test case](#test-case)
   - [Display port](#display-port)
   - [VCU](#vcu)
+- [VCK190 SDI](#vck190-sdi)
 
 # v4l2
 show all formats of camera
@@ -342,7 +343,7 @@ t0.src_1 \
 modetest -M xlnx -D fd4a0000.display -s 43@41:1920x1080@AR24
 
 gst-launch-1.0 -vvv \
-videotestsrc \
+videotestsrc ! video/x-raw, width=1920, height=1080 ! videoconvert \
 ! kmssink bus-id=fd4a0000.display fullscreen-overlay=1 sync=false
 ```
 ## VCU
@@ -358,3 +359,18 @@ filesrc location="./1k30p.h264" \
 gst-launch-1.0 -vvv \
 v4l2src device=/dev/video1 ! video/x-raw, width=1920, height=1080 ! videoconvert \
 ! kmssink bus-id=fd4a0000.display fullscreen-overlay=1 sync=false
+
+# VCK190 SDI
+```bash
+modetest -M xlnx -s 46@44:1920x1080@AR24
+
+modetest -M xlnx -w 46:colorspace:1
+
+gst-launch-1.0 \
+mediasrcbin name=videosrc media-device=/dev/media1 \
+v4l2src0::io-mode=dmabuf v4l2src0::stride-align=256 \
+! video/x-raw, width=1920, height=1080 \
+! queue \
+! videoconvert \
+! kmssink driver-name=xlnx plane-id=42 sync=false fullscreen-overlay=true
+```
