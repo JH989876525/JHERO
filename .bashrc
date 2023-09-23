@@ -12,28 +12,21 @@ esac
 alias pl0="source /media/jhh/ExtraSSD/petalinux-v2020.2.2/settings.sh"
 alias pl1="source /media/jhh/2022/petalinux-v2021.2/settings.sh"
 alias pl2="source /media/jhh/2022/petalinux-v2022.1/settings.sh"
+alias pl3="source /media/jhh/2023/petalinux-v2023.1/settings.sh"
 alias vit0="source /tools/Xilinx/Vitis/2020.2/settings64.sh"
 alias vit1="source /media/jhh/2022/Xilinx/Vitis/2021.2/settings64.sh"
 alias vit2="source /media/jhh/2022/Xilinx/Vitis/2022.1/settings64.sh"
 alias viv0="source /tools/Xilinx/Vivado/2020.2/settings64.sh"
 alias viv1="source /media/jhh/2022/Xilinx/Vivado/2021.2/settings64.sh"
 alias viv2="source /media/jhh/2022/Xilinx/Vivado/2022.1/settings64.sh"
-alias BOOTBIN="petalinux-package --boot --fpga system.bit --fsbl zynqmp_fsbl.elf --u-boot u-boot.elf --pmufw pmufw.elf --atf bl31.elf --force"
-alias BOOTBIN="petalinux-package --boot --fsbl zynqmp_fsbl.elf --u-boot u-boot.elf --pmufw pmufw.elf --atf bl31.elf --force"
-alias hls="source /home/jhh/Vitis_HLS_ENV.sh"
 alias clean="~/cleanTrash.sh"
 alias lms="code /home/jhh/JHERO/"
-alias sdk0="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2020.2.2/petalinux/images/linux/sdk\""
-alias sdk1="echo \"/media/jhh/2022/2021.2_verify/petalinux/xilinx-k26-som-v2021.2-final/ourBSP/images/linux/sdk\""
-alias sdk2="echo \"/media/jhh/ExtraSSD/EXMU-X261-bsp-2022.1/petalinux/images/linux/sdk\""
+alias see="sudo screen /dev/ttyUSB1 115200"
 alias op='nautilus'
-function see(){
-    DEV=${1:-1}
-    sudo screen /dev/ttyUSB${DEV} 115200
-}
+alias banana="sudo /home/jhh/Downloads/balenaEtcher-1.13.1-x64.AppImage"
 function mc(){
     DEV=${1:-1}
-    sudo minicom -c on -D /dev/ttyUSB${DEV}
+    sudo minicom -c on -D "/dev/ttyUSB${DEV}"
 }
 function ipn (){
     IP=${1:-192.168.3.0}
@@ -49,9 +42,26 @@ function dtsb (){
     AFFIX=$(echo "${INPUT}" | awk -F. {'print $1'})
     dtc -O dtb -o "${AFFIX}.dtb" "${INPUT}"
 }
+function ipat4 (){
+    if [ -z "${1}" ];then
+        echo "No argument supplied"
+        ssh ipat4@172.16.92.106
+    else
+        scp -r ipat4@172.16.92.106:"${1}" "${2}"
+    fi
+}
+function tipat4 (){
+    if [ -z "${1}" ];then
+        echo "No argument supplied"
+        ssh ipat4@172.16.92.106
+    else
+        scp -r "${1}" ipat4@172.16.92.106:"${2}"
+    fi
+}
 
+export PATH="/opt/ActiveTcl-8.6/bin:$PATH"
 # jhh add lib
-# export LD_LIBRARY_PATH=/usr/local/opencv/lib:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 # jhh add end
 
 # don't put duplicate lines or lines starting with space in the history.
