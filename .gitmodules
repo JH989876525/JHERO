@@ -1,0 +1,3 @@
+[submodule "systemd/systemd/cleanswap/auto-swap-cleaner"]
+	path = systemd/systemd/cleanswap/auto-swap-cleaner
+	url = https://github.com/fellchase/auto-swap-cleaner

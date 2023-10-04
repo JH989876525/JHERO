@@ -1,0 +1,10 @@
+[Unit]
+Description=Auto swap cleaner
+
+[Service]
+Type=simple
+ExecStart=/opt/auto_swap_cleaner.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
