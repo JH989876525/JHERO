@@ -350,9 +350,13 @@ videotestsrc ! video/x-raw, width=1920, height=1080 ! videoconvert \
 ```bash
 modetest -M xlnx -D fd4a0000.display -s 43@41:1920x1080@AR24
 
-gst-launch-1.0 -vvv \
-filesrc location="./1k30p.h264" \
-! h264parse ! omxh264dec internal-entropy-buffers=3 \
+
+gst-launch-1.0 \
+videotestsrc ! video/x-raw, width=1920, height=1080 \
+! videoconvert \
+! omxh264enc target-bitrate=2000 control-rate=2 \
+! h264parse ! omxh264dec \
+! fakesink \
 ! kmssink bus-id=fd4a0000.display fullscreen-overlay=1 sync=false
 ```
 
