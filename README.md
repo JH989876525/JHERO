@@ -35,6 +35,7 @@
 - [SD flash](#sd-flash)
   - [basic](#basic)
   - [combo to emmc](#combo-to-emmc)
+  - [resize disk](#resize-disk)
 - [minicom](#minicom)
 - [PCIE reset](#pcie-reset)
 - [ffmpeg](#ffmpeg)
@@ -223,6 +224,11 @@ cp /home/petalinux/emmc/* /media/sd-mmcblk0p1/
 sleep 3
 tar -zxvf rootfs.tar.gz -C /media/sd-mmcblk0p2/
 sync
+```
+## resize disk
+```
+cfdisk
+resize2fs
 ```
 
 # minicom
