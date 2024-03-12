@@ -227,8 +227,9 @@ sync
 ```
 ## resize disk
 ```
-cfdisk
-resize2fs
+cfdisk /dev/mmcblk1
+e2fsck -f /dev/mmcblk1p2
+resize2fs /dev/mmcblk1p2
 ```
 
 # minicom
