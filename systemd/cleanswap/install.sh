@@ -1,12 +1,16 @@
 #!/bin/bash
 
 LOCATION="/etc/systemd/system/"
+DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-cp auto-swap-cleaner/auto_swap_cleaner.sh /opt/
+git submodule init
+git submodule update
+
+cp "${DIR}/../systemd/cleanswap/auto-swap-cleaner/auto_swap_cleaner.sh" /opt/
 
 chmod 755 /opt/auto_swap_cleaner.sh
 
-cp cleanswap.service "${LOCATION}"
+cp "${DIR}/cleanswap.service" "${LOCATION}"
 
 chmod 644 "${LOCATION}/cleanswap.service"
 
